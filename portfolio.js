@@ -10,3 +10,16 @@ button.addEventListener('click',async()=>{
  }catch(error){document.getElementById('status').textContent='PDF download failed. Please try again.';alert('Could not download the PDF. Please try again.');}
  finally{button.disabled=false;button.textContent='Download PDF';}
 });
+
+const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+if('IntersectionObserver' in window && !reduceMotion){
+ document.body.classList.add('motion-ready');
+ const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');observer.unobserve(entry.target);}}),{threshold:0.04});
+ document.querySelectorAll('.work-card,.page,.section-heading,.portfolio-heading').forEach(el=>{el.classList.add('reveal');observer.observe(el);});
+ const revealTarget=()=>{const el=document.getElementById(location.hash.slice(1));if(el)el.classList.add('visible');};
+ window.addEventListener('hashchange',revealTarget);revealTarget();
+}
+let queued=false;
+const updateProgress=()=>{const height=document.documentElement.scrollHeight-innerHeight;document.querySelector('.reading-progress').style.transform=`scaleX(${height>0?scrollY/height:0})`;queued=false;};
+window.addEventListener('scroll',()=>{if(!queued){requestAnimationFrame(updateProgress);queued=true;}},{passive:true});
+updateProgress();
